@@ -28,7 +28,7 @@ export class AiReporter {
 
     try {
       const genAI = new GoogleGenerativeAI(this.geminiApiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = buildReporterPrompt(
         period,
@@ -57,7 +57,7 @@ export class AiReporter {
 
     try {
       const genAI = new GoogleGenerativeAI(this.geminiApiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `You are ACM, a personal developer productivity assistant.
 Answer this question about the developer's recent work based ONLY on the provided context.
