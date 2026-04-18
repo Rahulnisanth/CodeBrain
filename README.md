@@ -1,151 +1,209 @@
-# Auto Commit Mate (ACM) Documentation
+<div align="center">
 
-## Introduction
+# CodePilot
 
-**Auto Commit Mate** (ACM) is a productivity-boosting extension for Visual Studio Code that simplifies your workflow. With ACM, you can effortlessly ensure every change in your project is tracked and committed to your repository. This extension automatically commits and pushes changes to GitHub at customizable time intervals, helping you maintain an active and vibrant GitHub contribution graph.
+**AI-powered developer work-log, commit classifier, and report generator for VS Code**
 
-Additionally, ACM now supports **global repository-based work logs** by pushing commit logs to a centralized `Activity-Logger` repository on GitHub. This new feature allows users to track all their work logs in a single global repository.
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Rahulnisanth/CodePilot)
+[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.96.0-blue?logo=visual-studio-code)](https://code.visualstudio.com)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?logo=typescript)](https://www.typescriptlang.org)
+
+</div>
+
+---
+
+## What is CodePilot?
+
+**CodePilot** silently watches your coding activity, classifies your commits using Google Gemini AI, groups related work into logical tasks, and turns everything into professional reports - daily summaries, weekly logs, and appraisal documents without any manual effort.
+
+---
 
 ## Features
 
-- **Automatic Commits**: Automatically commit changes in your workspace without needing to manually stage and commit.
-- **Time-Based Commit Intervals**: Set time intervals to automatically commit changes at regular intervals.
-- **Detailed Commit Logs**: ACM generates detailed commit messages based on your file changes.
-- **GitHub Integration**: Automatically pushes commits to your GitHub repository.
-- **Global Repository Support**: ACM pushes commit logs to a global `Activity-Logger` repository on GitHub, providing a centralized location for all project logs.
-- **Customizable Settings**: You can configure the time duration, GitHub repository, and commit messages.
+| Feature                      | Description                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| **Live Activity Tracking**   | Tracks edits and focus events in real time across all Git repos                              |
+| **AI Commit Classification** | Classifies commits as `feature`, `bugfix`, `refactor`, `docs`, `test`, or `chore` via Gemini |
+| **Smart Work Unit Grouping** | Clusters related commits into named logical tasks automatically                              |
+| **Report Generator**         | Daily / Weekly / Monthly / Appraisal reports with AI-written narratives                      |
+| **Natural Language Q&A**     | Ask questions like _"What did I work on this week?"_ directly in VS Code                     |
+| **Multi-Repo Support**       | Tracks all workspace folders and additional configured repo paths simultaneously             |
+| **Risk Detector**            | Warns when uncommitted changes grow large or stale                                           |
+| **GitHub Sync**              | Optionally pushes structured logs to a centralized `codepilot-logs` GitHub repo              |
+| **Secure Credentials**       | GitHub PAT and Gemini API key stored in VS Code Secret Storage — never in plaintext          |
+
+---
 
 ## Installation
 
-To install **Auto Commit Mate** (ACM):
+### From VSIX (Current)
 
-1. Open **Visual Studio Code**.
-2. Go to the **Extensions Marketplace** by clicking the Extensions icon in the Activity Bar on the side of the window.
-3. Search for **Auto Commit Mate**.
-4. Click on **Install**.
+1. Download the `.vsix` from [GitHub Releases](https://github.com/Rahulnisanth/CodePilot/releases)
+2. In VS Code: `Cmd+Shift+P` → **Extensions: Install from VSIX...**
+3. Select the file and reload
 
-Alternatively, you can install it directly from the command palette by typing `ext install Rahulnisanth.auto-commit-mate`.
+### Requirements
 
-## Configuration
+- VS Code `^1.96.0`
+- A Git repository open in your workspace
 
-After installation, you need to configure the extension by adding your GitHub username and Personal Access Token (PAT). Follow these steps:
+---
 
-### GitHub Authentication and Personal Access Token (PAT)
+## Quick Setup
 
-To connect ACM with your GitHub account and authenticate using a GitHub Personal Access Token (PAT), follow these steps:
+### 1. Add GitHub Credentials _(for sync)_
 
-1. **Generate a GitHub Personal Access Token (PAT)**:
-   - Go to your GitHub account, and navigate to [GitHub Personal Access Tokens settings](https://github.com/settings/tokens).
-   - Click on **Generate new token**.
-   - Provide a token name and select the following scopes:
-     - `repo`: Full control of private repositories.
-     - `workflow`: To trigger workflows.
-     - `public_repo`: To access public repositories.
-     - `gist`: If you wish to access gists.
-   - Click on **Generate token**.
-   - Copy the generated token. This is important, as it will not be shown again.
+Run any sync action (`CodePilot: Sync to GitHub Now`) and you'll be prompted for:
 
-### Set Auto-Commit Time Duration
+- Your **GitHub username**
+- A **GitHub PAT** with `repo` scope → [create one here](https://github.com/settings/tokens)
 
-To configure the interval at which the extension commits automatically:
+Credentials are stored securely in VS Code Secret Storage.
 
-1. Open the command palette (press `Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-2. Type and select **"Set time duration for auto-committing logs"**.
-3. Enter the desired time duration in minutes.
+### 2. Add Gemini API Key _(for AI features)_
 
-This will set how often the extension will automatically commit your changes.
+Run any AI feature (e.g. generate a report) and you'll be prompted for a Gemini key → [get one here](https://aistudio.google.com/apikey)
 
-### Start the Auto Commit Mate
+> Without a Gemini key, CodePilot still works — commit classification falls back to keyword matching and reports are generated without AI narratives.
 
-To start the auto-commit process:
+---
 
-1. Open the command palette again.
-2. Type and select **"Start the Auto-Commit extension"**.
-3. The extension will begin monitoring your workspace and commit changes at the set intervals.
+## The Interface
 
-### Global Repository Setup (Activity-Logger)
+### Status Bar
 
-Once the GitHub credentials are set, ACM will push all logs to a **global `Activity-Logger` repository**. This repository will store commit logs from all projects, helping you centralize your work logs for easy tracking and reference.
+```text
+⏱ CodePilot: 4h 32m active today
+```
 
-To ensure logs are pushed to the global repository:
+Click to open the sidebar. Turns **amber** when uncommitted change risks are detected.
 
-- The repository will be created automatically upon first use if it doesn't already exist. ACM will check and create it if needed.
-- Logs are committed in Markdown format (`[YYYY-MM-DD: HH:mm to HH:mm].md`), containing a summary of the work done during that interval.
+### Sidebar
+
+```text
+CODE PILOT
+├── 📅 Today's Activity
+│   ├── Active Time: 4h 32m
+│   ├── Commits Today: 7
+│   └── Repos: my-project, backend-api
+├── 📦 Work Units (This Week)
+│   ├── 🟢 Auth System Refactor    [feature]
+│   ├── 🔴 Fix null pointer login  [bugfix]
+│   └── 🔵 Clean up API types      [refactor]
+├── ⚠️ Risks
+│   └── my-project: 78 lines uncommitted (1h 20m)
+└── 📊 Reports
+    ├── Generate Daily Report
+    ├── Generate Weekly Report
+    ├── Generate Monthly Report
+    ├── Generate Appraisal Report
+    └── Ask a Question...
+```
 
 ---
 
 ## Commands
 
-**Auto Commit Mate** offers the following primary commands:
+Open with `Cmd+Shift+P` → type `CodePilot:`
 
-### `extension.startAutoCommitting`
-
-Starts the auto-commit process. Once started, ACM will automatically commit changes in your workspace at regular intervals.
-
-### `extension.setTimeDuration`
-
-Sets the time duration between each auto-commit. You can specify this duration in minutes.
+| Command                                | Description                |
+| -------------------------------------- | -------------------------- |
+| `CodePilot: Start Tracking`            | Begin tracking             |
+| `CodePilot: Stop Tracking`             | Pause tracking             |
+| `CodePilot: Generate Daily Report`     | Last 24 hours              |
+| `CodePilot: Generate Weekly Report`    | Last 7 days                |
+| `CodePilot: Generate Monthly Report`   | Last 30 days               |
+| `CodePilot: Generate Appraisal Report` | Custom date range          |
+| `CodePilot: Ask About My Work`         | Open AI chat panel         |
+| `CodePilot: Sync to GitHub Now`        | Push logs to GitHub        |
+| `CodePilot: View Today's Activity Log` | Open raw activity log      |
+| `CodePilot: Set Commit Interval`       | Change snapshot interval   |
+| `CodePilot: Clear Credentials`         | Wipe stored secrets        |
+| `CodePilot: Open Settings`             | Jump to CodePilot settings |
 
 ---
 
-## Usage
+## Reports
 
-Once the extension is installed and configured, you can simply let it run in the background as you work. ACM will monitor your workspace for file changes and commit them automatically at the interval you set.
+Reports are saved to `~/.codePilot/reports/` and opened automatically after generation.
 
-The commits will include detailed messages about which files were modified, and they will be pushed directly to your GitHub repository as well as to your global `Activity-Logger` repository.
+**Each report includes:**
 
----
+- AI-generated achievement highlights (2–3 sentences, Gemini powered)
+- Total active coding time and daily breakdown
+- Work units with type labels and commit counts
+- Repository breakdown (time + commits per repo)
+- Top 10 most edited files
+- Risk flags for the period
 
-## Example Log File
+**Appraisal example:**
 
-When ACM generates a log file, the content will look like this:
-
+```text
+Cmd+Shift+P → CodePilot: Generate Appraisal Report
+Start date: 2026-01-01
+End date:   2026-03-31
 ```
-Project Logs
-
-Date: Jan 12, 2025
-Time: 11:00 PM to 11:30 PM
-
-Changes:
-- file1.js
-- file2.html
-
-Summary:
-Modified 2 files 2+ | 0-
-```
 
 ---
 
-## Troubleshooting
+## Settings
 
-### The extension is not committing automatically
+| Setting                          | Default | Description               |
+| -------------------------------- | ------- | ------------------------- |
+| `codePilot.enabled`              | `true`  | Enable/disable tracking   |
+| `codePilot.idleThresholdMinutes` | `5`     | Inactivity before idle    |
+| `codePilot.riskThresholdLines`   | `50`    | Lines before risk alert   |
+| `codePilot.riskThresholdMinutes` | `60`    | Minutes before risk alert |
+| `codePilot.additionalRepoPaths`  | `[]`    | Extra repos to track      |
+| `codePilot.syncEnabled`          | `false` | Auto-sync to GitHub       |
+| `codePilot.syncFrequencyHours`   | `24`    | Sync frequency            |
+| `codePilot.logRetentionDays`     | `90`    | Local log retention       |
 
-- Ensure that the Git repository is correctly initialized and that your workspace contains a `.git` directory.
-- Make sure you've set a valid time duration for auto-committing logs.
+> Secrets (`codePilot.githubToken`, `codePilot.geminiApiKey`) are stored via VS Code Secret Storage — never in settings files.
 
-### I don't want auto-commits to happen anymore
+---
 
-- You can stop the auto-commit process by disabling the extension or closing VS Code.
+## Privacy & Security
 
-### My commits aren't showing up on GitHub
+- **Source code** — never transmitted anywhere
+- **Commit messages + diff stats** — sent to Gemini API for classification (opt-in via key)
+- **GitHub PAT + Gemini key** — stored in VS Code Secret Storage only
+- **Activity logs** — stored locally at `~/.codePilot/`, optionally synced to GitHub if enabled
 
-- Verify that you have connected your GitHub account and that your repository is set up correctly for pushing commits.
-- Check the extension logs for any errors related to GitHub authentication.
+---
 
-### GitHub Personal Access Token (PAT) Authentication Issues
+## Local Data Layout
 
-- Double-check that your **GitHub Username** and **PAT** are correctly entered.
-- Ensure your PAT has the appropriate permissions (`repo` and `workflow`).
+```text
+~/.codePilot/
+├── logs/               ← Daily activity event files (JSON)
+├── reports/            ← Generated reports (Markdown / JSON)
+├── classifier-cache.json
+├── seen-commits.json
+└── risks.json
+```
 
 ---
 
 ## Contributing
 
-Contributions are welcome! If you'd like to help improve the **Auto Commit Mate - ACM** extension, please follow these steps:
+1. Fork the repository
+2. Clone: `git clone https://github.com/Rahulnisanth/CodePilot.git`
+3. Install deps: `npm install`
+4. Build: `npm run compile`
+5. Press **F5** in VS Code to launch the Extension Development Host
+6. Submit a pull request
 
-1. Fork the repository.
-2. Clone your fork to your local machine.
-3. Make your changes.
-4. Create a pull request with a description of your changes.
+---
 
-For more details, visit the repository's **[GitHub page](https://github.com/Rahulnisanth/ACM)**.
+## Documentation
+
+- [User Guide](docs/guide.md) — full feature walkthrough
+- [Product Requirements](docs/requirement.md) — architecture and spec
+
+---
+
+## License
+
+MIT © [Rahulnisanth](https://github.com/Rahulnisanth/CodePilot)
