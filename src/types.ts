@@ -1,5 +1,5 @@
 /**
- * Core data models for CodePilot.
+ * Core data models for CodeBrain.
  */
 
 export type WorkType =

@@ -7,7 +7,7 @@ import { toDateString, toYearMonth } from '../utils/dateUtils';
 import { readJson, getLogsDir } from '../utils/storage';
 import { ActivityEvent } from '../types';
 
-const GLOBAL_REPO_NAME = 'codepilot-logs';
+const GLOBAL_REPO_NAME = 'codebrain-logs';
 
 /** GitHub Contents API hard limit for a single file PUT (bytes). */
 const GITHUB_API_MAX_BYTES = 1_000_000; // ~1 MB
@@ -17,7 +17,7 @@ const LOG_FILE_WARN_BYTES = 5 * 1024 * 1024; // 5 MB
 
 /**
  * GitHub Sync Engine — pushes structured activity logs and reports to a
- * centralized 'codepilot-logs' GitHub repository.
+ * centralized 'codebrain-logs' GitHub repository.
  * Auto-initializes the repo if it doesn't exist (auto_init: true).
  */
 export class GitHubSync {
@@ -41,7 +41,7 @@ export class GitHubSync {
    * Start the auto-sync interval (if enabled in settings).
    */
   startAutoSync(): void {
-    const config = vscode.workspace.getConfiguration('codePilot');
+    const config = vscode.workspace.getConfiguration('codeBrain');
     if (!config.get<boolean>('syncEnabled', false)) return;
 
     const intervalHours = config.get<number>('syncFrequencyHours', 24);
@@ -57,13 +57,13 @@ export class GitHubSync {
   }
 
   /**
-   * Manually trigger a sync. Called by `codePilotsyncNow` command.
+   * Manually trigger a sync. Called by `codeBrainsyncNow` command.
    */
   async syncNow(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('codePilot');
+    const config = vscode.workspace.getConfiguration('codeBrain');
     if (!config.get<boolean>('syncEnabled', true)) {
       vscode.window.showInformationMessage(
-        'CodePilot: GitHub sync is disabled. Enable `codePilot.syncEnabled` to sync.',
+        'CodeBrain: GitHub sync is disabled. Enable `codeBrain.syncEnabled` to sync.',
       );
       return;
     }
@@ -82,11 +82,11 @@ export class GitHubSync {
       await this.pushDailyLog(username, token);
 
       vscode.window.showInformationMessage(
-        'CodePilot: Synced to GitHub codepilot-logs.',
+        'CodeBrain: Synced to GitHub codebrain-logs.',
       );
     } catch (error) {
       vscode.window.showErrorMessage(
-        `CodePilot Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `CodeBrain Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     } finally {
       this.onSyncEnd?.();
@@ -94,7 +94,7 @@ export class GitHubSync {
   }
 
   /**
-   * Creates the codepilot-logs GitHub repo if it doesn't exist.
+   * Creates the codebrain-logs GitHub repo if it doesn't exist.
    */
   private async ensureGlobalRepoExists(
     username: string,
@@ -111,14 +111,14 @@ export class GitHubSync {
           'https://api.github.com/user/repos',
           {
             name: GLOBAL_REPO_NAME,
-            description: 'CodePilot — Developer Activity Logger',
+            description: 'CodeBrain — Developer Activity Logger',
             private: false,
             auto_init: true,
           },
           { headers },
         );
         vscode.window.showInformationMessage(
-          `CodePilot: Created global repository '${GLOBAL_REPO_NAME}'.`,
+          `CodeBrain: Created global repository '${GLOBAL_REPO_NAME}'.`,
         );
       } else {
         throw err;
@@ -152,18 +152,18 @@ export class GitHubSync {
       if (size > LOG_FILE_WARN_BYTES) {
         const sizeMb = (size / 1024 / 1024).toFixed(1);
         console.warn(
-          `[CodePilot] Log file is very large (${sizeMb} MB). ` +
+          `[CodeBrain] Log file is very large (${sizeMb} MB). ` +
             'Only the most recent events will be synced.',
         );
       }
     }
 
-    // Read real activity events from ~/.codePilot/logs/YYYY-MM-DD.json
+    // Read real activity events from ~/.codeBrain/logs/YYYY-MM-DD.json
     const allEvents = readJson<ActivityEvent[]>(logFilePath, []);
 
     if (allEvents.length === 0) {
       vscode.window.showInformationMessage(
-        'CodePilot Sync: No activity logged today yet — nothing to push.',
+        'CodeBrain Sync: No activity logged today yet — nothing to push.',
       );
       return;
     }
@@ -190,7 +190,7 @@ export class GitHubSync {
     if (contentBytes > GITHUB_API_MAX_BYTES) {
       // Should not happen after fitEventsToLimit, but be safe.
       throw new Error(
-        `CodePilot: Payload too large for GitHub API (${(contentBytes / 1024).toFixed(0)} KB). ` +
+        `CodeBrain: Payload too large for GitHub API (${(contentBytes / 1024).toFixed(0)} KB). ` +
           'Reduce the number of tracked events or increase sync frequency.',
       );
     }
@@ -213,7 +213,7 @@ export class GitHubSync {
         apiUrl,
         {
           message:
-            `CodePilot: Activity log for ${dateStr} ` +
+            `CodeBrain: Activity log for ${dateStr} ` +
             `(${events.length}/${allEvents.length} events${truncated ? ', truncated' : ''})`,
           content: encodedContent,
           ...(sha ? { sha } : {}),
@@ -223,12 +223,12 @@ export class GitHubSync {
 
       if (truncated) {
         console.warn(
-          `[CodePilot] Sync truncated: pushed ${events.length} of ${allEvents.length} events ` +
+          `[CodeBrain] Sync truncated: pushed ${events.length} of ${allEvents.length} events ` +
             'to stay within GitHub API limits.',
         );
       }
     } catch (error) {
-      console.error('CodePilot sync push error:', error);
+      console.error('CodeBrain sync push error:', error);
       throw error;
     }
   }

@@ -1,6 +1,6 @@
-# CodePilot — Product Requirements
+# CodeBrain — Product Requirements
 
-> **Product:** CodePilot (CodePilot)
+> **Product:** CodeBrain (CodeBrain)
 > **Version:** 1.0.0
 > **Publisher:** Rahulnisanth
 > **Last Updated:** 2026-04-13
@@ -9,13 +9,13 @@
 
 ## 1. Overview
 
-**CodePilot** is a VS Code extension that automatically tracks, summarizes, and reports what you worked on — without any manual logging effort.
+**CodeBrain** is a VS Code extension that automatically tracks, summarizes, and reports what you worked on — without any manual logging effort.
 
 It hooks into your coding activity in real time, classifies your commits using Google Gemini AI, groups related work into logical units, and generates professional reports you can use in standups, appraisals, or performance reviews.
 
 **Core value proposition:**
 
-> _"You code. CodePilot tells your story."_
+> _"You code. CodeBrain tells your story."_
 
 ---
 
@@ -30,7 +30,7 @@ It hooks into your coding activity in real time, classifies your commits using G
 | Version Control | Git CLI via `child_process.exec` (async, non-blocking)             |
 | Remote Sync     | GitHub REST API v3 via `axios`                                     |
 | Auth Storage    | VS Code Secret Storage (`context.secrets`)                         |
-| Local Storage   | Structured JSON files in `~/.codePilot/`                           |
+| Local Storage   | Structured JSON files in `~/.codeBrain/`                           |
 | Report Export   | Markdown (built-in), JSON                                          |
 | Build           | `esbuild` (fast bundler)                                           |
 | Type Checking   | TypeScript strict mode                                             |
@@ -48,7 +48,7 @@ src/
 ├── tracker/
 │   ├── activityTracker.ts    # vscode event hooks (document changes, focus)
 │   ├── sessionManager.ts     # Session boundary detection
-│   └── logWriter.ts          # Write events to ~/.codePilot/logs/
+│   └── logWriter.ts          # Write events to ~/.codeBrain/logs/
 ├── git/
 │   ├── gitClient.ts          # Async git command wrappers
 │   ├── commitPoller.ts       # 5-min commit detection interval
@@ -77,7 +77,7 @@ src/
 └── utils/
     ├── uuid.ts               # UUID generation (Node crypto)
     ├── dateUtils.ts          # Date/time formatting helpers
-    ├── storage.ts            # ~/.codePilot/ read/write helpers
+    ├── storage.ts            # ~/.codeBrain/ read/write helpers
     └── secrets.ts            # context.secrets abstraction
 ```
 
@@ -105,8 +105,8 @@ Captures all developer activity in real time by hooking into VS Code event APIs.
 
 **Storage:**
 
-- `LogWriter` appends `ActivityEvent` objects to `~/.codePilot/logs/YYYY-MM-DD.json`
-- Log rotation: files older than `codePilot.logRetentionDays` (default: 90) are deleted automatically
+- `LogWriter` appends `ActivityEvent` objects to `~/.codeBrain/logs/YYYY-MM-DD.json`
+- Log rotation: files older than `codeBrain.logRetentionDays` (default: 90) are deleted automatically
 
 **Data shape (ActivityEvent):**
 
@@ -148,17 +148,17 @@ git log -1 --pretty=format:"%ad" --date=iso  # last commit time
 **Commit Poller (`commitPoller.ts`):**
 
 - Polls all tracked repos every 5 minutes for new commits
-- Persists seen commit hashes across restarts in `~/.codePilot/seen-commits.json`
+- Persists seen commit hashes across restarts in `~/.codeBrain/seen-commits.json`
 - Emits `CommitRecord` events to registered listeners
 
 **Risk Detector (`riskDetector.ts`):**
 
 - Polls all repos every 10 minute`s
 - Triggers a VS Code warning notification when:
-  - `≥ codePilot.riskThresholdLines` lines modified but uncommitted for `≥ codePilot.riskThresholdMinutes`
+  - `≥ codeBrain.riskThresholdLines` lines modified but uncommitted for `≥ codeBrain.riskThresholdMinutes`
   - A file has been deleted but not committed
 - Notification includes a quick-action button to open Source Control panel
-- Logs risk events to `~/.codePilot/risks.json`
+- Logs risk events to `~/.codeBrain/risks.json`
 - Reports risk count to the status bar (amber indicator)
 
 ---
@@ -169,15 +169,15 @@ All secrets are stored exclusively in VS Code Secret Storage (`context.secrets`)
 
 | Secret          | Key                        | Storage                          |
 | --------------- | -------------------------- | -------------------------------- |
-| GitHub PAT      | `codePilot.githubToken`    | `context.secrets`                |
-| Gemini API Key  | `codePilot.geminiApiKey`   | `context.secrets`                |
-| GitHub username | `codePilot.githubUsername` | VS Code settings (non-sensitive) |
+| GitHub PAT      | `codeBrain.githubToken`    | `context.secrets`                |
+| Gemini API Key  | `codeBrain.geminiApiKey`   | `context.secrets`                |
+| GitHub username | `codeBrain.githubUsername` | VS Code settings (non-sensitive) |
 
 **Flows:**
 
 - On first use, prompts user for GitHub username + PAT via secure masked `showInputBox`
 - On first AI feature use, prompts user for Gemini API key
-- `codePilot.clearCredentials` command wipes all stored secrets and resets username
+- `codeBrain.clearCredentials` command wipes all stored secrets and resets username
 
 ---
 
@@ -186,7 +186,7 @@ All secrets are stored exclusively in VS Code Secret Storage (`context.secrets`)
 Supports tracking across multiple Git repositories simultaneously.
 
 - Detects all repos from `vscode.workspace.workspaceFolders`
-- Additionally tracks paths listed in `codePilot.additionalRepoPaths`
+- Additionally tracks paths listed in `codeBrain.additionalRepoPaths`
 - Stores per-repo metadata: `repoName`, `repoPath`, `remoteUrl`, `lastSyncedAt`
 - All activity events, commits, and reports are tagged with their source repo
 
@@ -220,7 +220,7 @@ interface ClassificationResult {
 }
 ```
 
-**Caching:** Results are cached by `commitHash` in `~/.codePilot/classifier-cache.json` to avoid redundant API calls.
+**Caching:** Results are cached by `commitHash` in `~/.codeBrain/classifier-cache.json` to avoid redundant API calls.
 
 **Graceful degradation:** If Gemini is unavailable or no API key is set, falls back to keyword-based rule matching:
 
@@ -282,10 +282,10 @@ Generates professional work reports from activity data.
 
 | Report           | Scope             | Command                       |
 | ---------------- | ----------------- | ----------------------------- |
-| Daily Summary    | Last 24 hours     | `codePilot.generateDaily`     |
-| Weekly Work-Log  | Last 7 days       | `codePilot.generateWeekly`    |
-| Monthly Summary  | Last 30 days      | `codePilot.generateMonthly`   |
-| Appraisal Report | Custom date range | `codePilot.generateAppraisal` |
+| Daily Summary    | Last 24 hours     | `codeBrain.generateDaily`     |
+| Weekly Work-Log  | Last 7 days       | `codeBrain.generateWeekly`    |
+| Monthly Summary  | Last 30 days      | `codeBrain.generateMonthly`   |
+| Appraisal Report | Custom date range | `codeBrain.generateAppraisal` |
 
 #### Report Content
 
@@ -305,7 +305,7 @@ Each report includes:
 | Markdown | `.md`   | Always available |
 | JSON     | `.json` | Always available |
 
-Reports are saved to `~/.codePilot/reports/` and opened automatically after generation.
+Reports are saved to `~/.codeBrain/reports/` and opened automatically after generation.
 
 #### Natural Language Query
 
@@ -320,13 +320,13 @@ Powered by Gemini. Maintains conversation context within the same session.
 
 ### 4.8 GitHub Sync Engine (`src/sync/`)
 
-Optionally syncs structured activity logs to a centralized `codepilot-logs` GitHub repository.
+Optionally syncs structured activity logs to a centralized `codebrain-logs` GitHub repository.
 
 - Auto-creates the repository if it doesn't exist (`auto_init: true`)
 - Sync structure:
   - `logs/YYYY/MM/DD.json` — structured daily log (JSON)
-- Configurable sync frequency via `codePilot.syncFrequencyHours` (default: 24h, disabled by default)
-- Manual trigger: `codePilot.syncNow` command
+- Configurable sync frequency via `codeBrain.syncFrequencyHours` (default: 24h, disabled by default)
+- Manual trigger: `codeBrain.syncNow` command
 - Sync status shown in status bar during sync
 
 ---
@@ -338,7 +338,7 @@ Optionally syncs structured activity logs to a centralized `codepilot-logs` GitH
 A persistent status bar item in the bottom-left:
 
 ```text
-⏱ CodePilot: 4h 32m active today
+⏱ CodeBrain: 4h 32m active today
 ```
 
 - Click opens the sidebar panel
@@ -351,17 +351,17 @@ A persistent status bar item in the bottom-left:
 A tree view in the Activity Bar:
 
 ```text
-CODE PILOT
+CODE BRAIN
 ├── 📅 Today's Activity
 │   ├── Active Time: 4h 32m
 │   ├── Commits Today: 7
-│   └── Repos: CodePilot, backend-api
+│   └── Repos: CodeBrain, backend-api
 ├── 📦 Work Units (This Week)
 │   ├── 🟢 Secure Auth Migration  [feature]
 │   ├── 🔴 Fix setInterval Leak   [bugfix]
 │   └── 🔵 Migrate to TypeScript  [refactor]
 ├── ⚠️ Risks
-│   └── CodePilot: 78 lines uncommitted (1h 20m)
+│   └── CodeBrain: 78 lines uncommitted (1h 20m)
 └── 📊 Reports
     ├── Generate Daily Report
     ├── Generate Weekly Report
@@ -374,19 +374,19 @@ CODE PILOT
 
 | Command                   | ID                            |
 | ------------------------- | ----------------------------- |
-| Start Tracking            | `codePilot.start`             |
-| Stop Tracking             | `codePilot.stop`              |
-| Set Commit Interval       | `codePilot.setInterval`       |
-| Generate Daily Report     | `codePilot.generateDaily`     |
-| Generate Weekly Report    | `codePilot.generateWeekly`    |
-| Generate Monthly Report   | `codePilot.generateMonthly`   |
-| Generate Appraisal Report | `codePilot.generateAppraisal` |
-| Ask About My Work         | `codePilot.askQuestion`       |
-| Sync to GitHub Now        | `codePilot.syncNow`           |
-| View Today's Activity Log | `codePilot.viewLog`           |
-| Clear Credentials         | `codePilot.clearCredentials`  |
-| Open Settings             | `codePilot.openSettings`      |
-| Open Sidebar              | `codePilot.openSidebar`       |
+| Start Tracking            | `codeBrain.start`             |
+| Stop Tracking             | `codeBrain.stop`              |
+| Set Commit Interval       | `codeBrain.setInterval`       |
+| Generate Daily Report     | `codeBrain.generateDaily`     |
+| Generate Weekly Report    | `codeBrain.generateWeekly`    |
+| Generate Monthly Report   | `codeBrain.generateMonthly`   |
+| Generate Appraisal Report | `codeBrain.generateAppraisal` |
+| Ask About My Work         | `codeBrain.askQuestion`       |
+| Sync to GitHub Now        | `codeBrain.syncNow`           |
+| View Today's Activity Log | `codeBrain.viewLog`           |
+| Clear Credentials         | `codeBrain.clearCredentials`  |
+| Open Settings             | `codeBrain.openSettings`      |
+| Open Sidebar              | `codeBrain.openSidebar`       |
 
 ---
 
@@ -394,22 +394,22 @@ CODE PILOT
 
 | Setting                           | Type     | Default | Description                             |
 | --------------------------------- | -------- | ------- | --------------------------------------- |
-| `codePilot.enabled`               | boolean  | `true`  | Enable/disable all tracking             |
-| `codePilot.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)         |
-| `codePilot.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track           |
-| `codePilot.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)      |
-| `codePilot.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle     |
-| `codePilot.riskThresholdLines`    | number   | `50`    | Uncommitted lines to trigger risk alert |
-| `codePilot.riskThresholdMinutes`  | number   | `60`    | Minutes before risk alert fires         |
-| `codePilot.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub              |
-| `codePilot.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                |
-| `codePilot.logRetentionDays`      | number   | `90`    | Days to keep local activity logs        |
-| `codePilot.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup          |
+| `codeBrain.enabled`               | boolean  | `true`  | Enable/disable all tracking             |
+| `codeBrain.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)         |
+| `codeBrain.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track           |
+| `codeBrain.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)      |
+| `codeBrain.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle     |
+| `codeBrain.riskThresholdLines`    | number   | `50`    | Uncommitted lines to trigger risk alert |
+| `codeBrain.riskThresholdMinutes`  | number   | `60`    | Minutes before risk alert fires         |
+| `codeBrain.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub              |
+| `codeBrain.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                |
+| `codeBrain.logRetentionDays`      | number   | `90`    | Days to keep local activity logs        |
+| `codeBrain.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup          |
 
 > **Secrets** (stored via `context.secrets`, never in settings):
 >
-> - `codePilot.githubToken` — GitHub Personal Access Token
-> - `codePilot.geminiApiKey` — Google Gemini API key
+> - `codeBrain.githubToken` — GitHub Personal Access Token
+> - `codeBrain.geminiApiKey` — Google Gemini API key
 
 ---
 
@@ -498,7 +498,7 @@ interface ClassificationResult {
 ## 8. Local File System Layout
 
 ```text
-~/.codePilot/
+~/.codeBrain/
 ├── logs/
 │   ├── 2026-04-13.json      # Daily activity events
 │   ├── 2026-04-12.json

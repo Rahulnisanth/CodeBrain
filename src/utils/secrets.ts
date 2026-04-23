@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
-const KEY_GITHUB_TOKEN = 'codePilot.githubToken';
-const KEY_GEMINI_API_KEY = 'codePilot.geminiApiKey';
+const KEY_GITHUB_TOKEN = 'codeBrain.githubToken';
+const KEY_GEMINI_API_KEY = 'codeBrain.geminiApiKey';
 
 /**
- * Abstraction over vscode.SecretStorage for CodePilot secrets.
+ * Abstraction over vscode.SecretStorage for CodeBrain secrets.
  */
 export class SecretsManager {
   constructor(private readonly context: vscode.ExtensionContext) {}

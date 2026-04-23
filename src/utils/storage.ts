@@ -2,15 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-const CODE_PILOT_DIR = path.join(os.homedir(), '.codePilot');
-const LOGS_DIR = path.join(CODE_PILOT_DIR, 'logs');
-const REPORTS_DIR = path.join(CODE_PILOT_DIR, 'reports');
+const CODE_BRAIN_DIR = path.join(os.homedir(), '.codeBrain');
+const LOGS_DIR = path.join(CODE_BRAIN_DIR, 'logs');
+const REPORTS_DIR = path.join(CODE_BRAIN_DIR, 'reports');
 
 /**
- * Ensures the ~/.codePilot directory and its subdirectories exist.
+ * Ensures the ~/.codeBrain directory and its subdirectories exist.
  */
-export function ensureCodePilotDirs(): void {
-  [CODE_PILOT_DIR, LOGS_DIR, REPORTS_DIR].forEach((dir) => {
+export function ensureCodeBrainDirs(): void {
+  [CODE_BRAIN_DIR, LOGS_DIR, REPORTS_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -18,10 +18,10 @@ export function ensureCodePilotDirs(): void {
 }
 
 /**
- * Returns the base CodePilot data directory path.
+ * Returns the base CodeBrain data directory path.
  */
-export function getCodePilotDir(): string {
-  return CODE_PILOT_DIR;
+export function getCodeBrainDir(): string {
+  return CODE_BRAIN_DIR;
 }
 
 /**

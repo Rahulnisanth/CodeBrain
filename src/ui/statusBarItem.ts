@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { formatDuration } from '../utils/dateUtils';
 
 /**
- * Status Bar Item — live indicator of CodePilot activity.
+ * Status Bar Item — live indicator of CodeBrain activity.
  */
-export class CodePilotStatusBar {
+export class CodeBrainStatusBar {
   private readonly statusBarItem: vscode.StatusBarItem;
   private activeMinutes = 0;
   private riskCount = 0;
@@ -17,8 +17,8 @@ export class CodePilotStatusBar {
       vscode.StatusBarAlignment.Left,
       100,
     );
-    this.statusBarItem.command = 'codePilot.openSidebar';
-    this.statusBarItem.tooltip = 'CodePilot — Click to open sidebar';
+    this.statusBarItem.command = 'codeBrain.openSidebar';
+    this.statusBarItem.tooltip = 'CodeBrain — Click to open sidebar';
     this.statusBarItem.show();
 
     context.subscriptions.push(this.statusBarItem);
@@ -86,7 +86,7 @@ export class CodePilotStatusBar {
 
   private updateDisplay(): void {
     if (this.isSyncing) {
-      this.statusBarItem.text = '$(sync~spin) CodePilot: Syncing...';
+      this.statusBarItem.text = '$(sync~spin) CodeBrain: Syncing...';
       this.statusBarItem.backgroundColor = undefined;
       return;
     }
@@ -94,12 +94,12 @@ export class CodePilotStatusBar {
     const duration = formatDuration(this.activeMinutes);
 
     if (this.riskCount > 0) {
-      this.statusBarItem.text = `$(warning) CodePilot: ${duration} active — ${this.riskCount} risk(s)`;
+      this.statusBarItem.text = `$(warning) CodeBrain: ${duration} active — ${this.riskCount} risk(s)`;
       this.statusBarItem.backgroundColor = new vscode.ThemeColor(
         'statusBarItem.warningBackground',
       );
     } else {
-      this.statusBarItem.text = `$(clock) CodePilot: ${duration} active today`;
+      this.statusBarItem.text = `$(clock) CodeBrain: ${duration} active today`;
       this.statusBarItem.backgroundColor = undefined;
     }
   }

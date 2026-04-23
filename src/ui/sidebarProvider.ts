@@ -88,10 +88,10 @@ class ReportItem extends vscode.TreeItem {
 }
 
 /**
- * Sidebar Tree Data Provider for CodePilot.
+ * Sidebar Tree Data Provider for CodeBrain.
  * Shows: Today's Activity, Work Units, Risks, Reports.
  */
-export class CodePilotSidebarProvider implements vscode.TreeDataProvider<TreeItem> {
+export class CodeBrainSidebarProvider implements vscode.TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<
     TreeItem | undefined | void
   >();
@@ -195,14 +195,14 @@ export class CodePilotSidebarProvider implements vscode.TreeDataProvider<TreeIte
 
   private getReportItems(): TreeItem[] {
     return [
-      new ReportItem('Generate Daily Report', 'codePilot.generateDaily'),
-      new ReportItem('Generate Weekly Report', 'codePilot.generateWeekly'),
-      new ReportItem('Generate Monthly Report', 'codePilot.generateMonthly'),
+      new ReportItem('Generate Daily Report', 'codeBrain.generateDaily'),
+      new ReportItem('Generate Weekly Report', 'codeBrain.generateWeekly'),
+      new ReportItem('Generate Monthly Report', 'codeBrain.generateMonthly'),
       new ReportItem(
         'Generate Appraisal Report',
-        'codePilot.generateAppraisal',
+        'codeBrain.generateAppraisal',
       ),
-      new ReportItem('Ask a Question...', 'codePilot.askQuestion'),
+      new ReportItem('Ask a Question...', 'codeBrain.askQuestion'),
     ];
   }
 }

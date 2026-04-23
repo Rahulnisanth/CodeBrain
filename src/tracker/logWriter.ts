@@ -4,17 +4,17 @@ import {
   getLogsDir,
   appendToJsonArray,
   pruneOldLogs,
-  ensureCodePilotDirs,
+  ensureCodeBrainDirs,
 } from '../utils/storage';
 import { toDateString } from '../utils/dateUtils';
 import * as vscode from 'vscode';
 
 /**
- * Writes ActivityEvents to rolling JSON log files in ~/.codePilot/logs/YYYY-MM-DD.json.
+ * Writes ActivityEvents to rolling JSON log files in ~/.codeBrain/logs/YYYY-MM-DD.json.
  */
 export class LogWriter {
   constructor() {
-    ensureCodePilotDirs();
+    ensureCodeBrainDirs();
   }
 
   /**
@@ -31,7 +31,7 @@ export class LogWriter {
    * Prune old log files based on the configured retention period.
    */
   pruneOldLogs(): void {
-    const config = vscode.workspace.getConfiguration('codePilot');
+    const config = vscode.workspace.getConfiguration('codeBrain');
     const retentionDays = config.get<number>('logRetentionDays', 90);
     pruneOldLogs(retentionDays);
   }

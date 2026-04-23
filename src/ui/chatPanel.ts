@@ -20,8 +20,8 @@ export class ChatPanel {
     private readonly workUnits: WorkUnit[],
   ) {
     this.panel = vscode.window.createWebviewPanel(
-      'codePilotChat',
-      'CodePilot: Ask About My Work',
+      'codeBrainChat',
+      'CodeBrain: Ask About My Work',
       vscode.ViewColumn.Two,
       {
         enableScripts: true,
@@ -119,7 +119,7 @@ export class ChatPanel {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>CodePilot Chat</title>
+      <title>CodeBrain Chat</title>
       <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -494,7 +494,7 @@ export class ChatPanel {
           <svg class="header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor" opacity="0.85"/>
           </svg>
-          <span class="header-title">CodePilot Chat</span>
+          <span class="header-title">CodeBrain Chat</span>
         </div>
         <div class="header-actions">
           <button class="icon-btn" onclick="clearChat()" title="New chat">
@@ -582,7 +582,7 @@ export class ChatPanel {
 
           const label = document.createElement('div');
           label.className = 'msg-role-label';
-          label.textContent = role === 'user' ? 'You' : 'CodePilot';
+          label.textContent = role === 'user' ? 'You' : 'CodeBrain';
           group.appendChild(label);
 
           const bubble = document.createElement('div');

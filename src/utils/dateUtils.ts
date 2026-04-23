@@ -1,5 +1,5 @@
 /**
- * Date & time utilities for CodePilot.
+ * Date & time utilities for CodeBrain.
  */
 
 /**
