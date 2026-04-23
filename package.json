@@ -1,6 +1,6 @@
 {
-  "name": "code-brain",
-  "displayName": "CodeBrain",
+  "name": "codebrain",
+  "displayName": "CodeBrain.AI",
   "description": "AI-powered developer work-log, commit classifier, report generator, and productivity tracker. Automatically tracks, summarizes, and reports what you worked on.",
   "version": "1.0.0",
   "icon": "assets/extension-icon.png",
