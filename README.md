@@ -4,7 +4,7 @@
 
 **AI-powered developer work-log, commit classifier, and report generator for VS Code**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Rahulnisanth/CodeBrainPro)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/Rahulnisanth/CodeBrainPro)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.96.0-blue?logo=visual-studio-code)](https://code.visualstudio.com)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?logo=typescript)](https://www.typescriptlang.org)
@@ -45,7 +45,7 @@
 
 ### Requirements
 
-- VS Code `^1.96.0`
+- VS Code `^1.115.0`
 - A Git repository open in your workspace
 
 ---

@@ -475,6 +475,10 @@ CodeBrainPro activates when VS Code detects a `.git` folder. Make sure:
 - Optional GitHub sync to code-brain-pro-logs repo
 - Secure credential storage via VS Code Secret Storage
 
+### v1.0.1 — Fix
+
+- Update VS Code version requirement to ^1.115.0
+
 ---
 
 ## Privacy & Security
