@@ -108,6 +108,8 @@ export class ReportManager {
     end: Date,
     format: ExportFormat,
   ): Promise<void> {
+    let generatedReportData: ReportData | null = null;
+
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -154,7 +156,7 @@ export class ReportManager {
             },
           );
 
-          const reportData = this.builder.buildReportData(
+          generatedReportData = this.builder.buildReportData(
             period,
             start,
             end,
@@ -162,9 +164,6 @@ export class ReportManager {
             workUnits,
             narrative,
           );
-
-          // Save and open the report
-          await this.saveReport(type, reportData, format, start);
         } catch (error) {
           vscode.window.showErrorMessage(
             `CodeBrainPro: Failed to generate report — ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -172,6 +171,11 @@ export class ReportManager {
         }
       },
     );
+
+    // Save and open the report after the progress window has closed
+    if (generatedReportData) {
+      await this.saveReport(type, generatedReportData, format, start);
+    }
   }
 
   private async saveReport(
