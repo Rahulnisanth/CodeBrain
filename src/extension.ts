@@ -14,14 +14,10 @@ import { ReportManager } from './reports/reportManager';
 import { GitHubSync } from './sync/githubSync';
 import { CodeBrainProStatusBar } from './ui/statusBarItem';
 import { CodeBrainProSidebarProvider } from './ui/sidebarProvider';
+import { SidebarStateManager } from './ui/sidebarState';
 import { ChatPanel } from './ui/chatPanel';
-import { CommitRecord, WorkUnit, RiskEvent } from './types';
+import { CommitRecord } from './types';
 import { ensureCodeBrainProDirs } from './utils/storage';
-
-// In-memory stores (repopulated on each activation via commit poller)
-const allCommits: CommitRecord[] = [];
-const allWorkUnits: WorkUnit[] = [];
-const activeRisks: RiskEvent[] = [];
 
 export async function activate(
   context: vscode.ExtensionContext,
@@ -54,6 +50,10 @@ export async function activate(
   );
   statusBar.startUpdating();
 
+  // Sidebar state — restore from disk so data survives window refreshes
+  const sidebarState = new SidebarStateManager();
+  sidebarState.restore();
+
   // Sidebar
   const sidebarProvider = new CodeBrainProSidebarProvider(
     sessionManager,
@@ -65,14 +65,20 @@ export async function activate(
   });
   context.subscriptions.push(treeView);
 
+  // Hydrate sidebar immediately with restored state
+  if (sidebarState.hasData()) {
+    sidebarProvider.restoreState({
+      workUnits: sidebarState.getWorkUnits(),
+      commits: sidebarState.getRecentCommits(),
+    });
+  }
+
   // Sidebar refresh command
   context.subscriptions.push(
     vscode.commands.registerCommand('codeBrainProSidebar.refresh', () => {
       sidebarProvider.refresh();
     }),
   );
-
-  // [GitHub Sync is wired up after CommitPoller — see below]
 
   // Activity Tracker
   const activityTracker = new ActivityTracker(
@@ -97,17 +103,22 @@ export async function activate(
       commit.diffStat,
     );
     const enrichedCommit: CommitRecord = { ...commit, classification };
-    allCommits.push(enrichedCommit);
+
+    // Deduplicate: skip if this commit hash was already restored from disk
+    if (!sidebarState.addCommit(enrichedCommit)) {
+      return;
+    }
 
     // Re-group work units on each new commit
-    const newWorkUnits = await grouper.group(allCommits.slice(-50));
-    allWorkUnits.length = 0;
-    allWorkUnits.push(...newWorkUnits);
+    const newWorkUnits = await grouper.group(sidebarState.getGroupingWindow());
+    sidebarState.setWorkUnits(newWorkUnits);
 
     sidebarProvider.refresh({
-      workUnits: allWorkUnits,
-      commits: allCommits.slice(-20),
+      workUnits: sidebarState.getWorkUnits(),
+      commits: sidebarState.getRecentCommits(),
     });
+
+    sidebarState.persist();
   });
 
   commitPoller.start();
@@ -127,9 +138,10 @@ export async function activate(
       try {
         await commitPoller.poll();
         sidebarProvider.refresh({
-          workUnits: allWorkUnits,
-          commits: allCommits.slice(-20),
+          workUnits: sidebarState.getWorkUnits(),
+          commits: sidebarState.getRecentCommits(),
         });
+        sidebarState.persist();
       } catch {
         // Non-fatal — sidebar will self-correct on next regular poll
       }
@@ -141,11 +153,15 @@ export async function activate(
   const riskDetector = new RiskDetector(context, gitClient, repoManager);
   riskDetector.start((totalRisks) => {
     statusBar.setRiskCount(totalRisks);
-    sidebarProvider.refresh({ risks: activeRisks });
+    sidebarProvider.refresh({ risks: sidebarState.getRisks() });
   });
 
   // Report Manager
-  const reportManager = new ReportManager(aiReporter, allCommits, allWorkUnits);
+  const reportManager = new ReportManager(
+    aiReporter,
+    sidebarState.getAllCommits(),
+    sidebarState.getWorkUnits(),
+  );
 
   // Commands
   const commands: [string, () => void | Promise<void>][] = [
@@ -195,7 +211,7 @@ export async function activate(
     [
       'codeBrainPro.askQuestion',
       () => {
-        ChatPanel.show(context, aiReporter, allWorkUnits);
+        ChatPanel.show(context, aiReporter, sidebarState.getWorkUnits());
       },
     ],
     ['codeBrainPro.syncNow', () => githubSync.syncNow()],

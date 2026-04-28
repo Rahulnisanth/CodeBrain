@@ -8,8 +8,8 @@ import * as path from 'path';
 type CommitListener = (commit: CommitRecord) => void;
 
 /**
- * Polls all tracked repos every 5 minutes for new commits.
- * Stores handle in context.subscriptions
+ * Watches all tracked repos for new commits via .git file system events.
+ * Triggers a poll only when the user actually commits.
  */
 export class CommitPoller {
   private lastSeenCommits = new Map<string, Set<string>>();
@@ -26,25 +26,19 @@ export class CommitPoller {
     private readonly repoManager: RepoManager,
   ) {
     this.seenCommitsFile = path.join(getCodeBrainProDir(), 'seen-commits.json');
-    // Load previously seen commits to persist across restarts
     const stored = readJson<Record<string, string[]>>(this.seenCommitsFile, {});
     Object.entries(stored).forEach(([repo, hashes]) => {
       this.lastSeenCommits.set(repo, new Set(hashes));
     });
   }
 
-  /**
-   * Start watching for commits and register disposables.
-   */
   start(): void {
     this.context.subscriptions.push({
-      dispose: () => {
-        this.disposeWatchers();
-      },
+      dispose: () => this.disposeWatchers(),
     });
 
-    // Run immediately on start
-    this.triggerPoll();
+    // Set up watchers immediately so commits are caught from the start
+    this.setupWatchers();
   }
 
   private disposeWatchers(): void {
@@ -57,46 +51,44 @@ export class CommitPoller {
   private setupWatchers(): void {
     const repos = this.repoManager.getAll();
     for (const repo of repos) {
-      if (!this.repoWatchers.has(repo.repoPath)) {
-        try {
-          const watchers: vscode.FileSystemWatcher[] = [];
+      if (this.repoWatchers.has(repo.repoPath)) {
+        continue;
+      }
 
-          const headPattern = new vscode.RelativePattern(
-            repo.repoPath,
-            '.git/logs/HEAD',
-          );
-          const headWatcher =
-            vscode.workspace.createFileSystemWatcher(headPattern);
-          headWatcher.onDidChange(() => this.triggerPoll());
-          headWatcher.onDidCreate(() => this.triggerPoll());
-          watchers.push(headWatcher);
+      try {
+        const watchers: vscode.FileSystemWatcher[] = [];
 
-          const refsPattern = new vscode.RelativePattern(
-            repo.repoPath,
-            '.git/refs/heads/**',
-          );
-          const refsWatcher =
-            vscode.workspace.createFileSystemWatcher(refsPattern);
-          refsWatcher.onDidChange(() => this.triggerPoll());
-          refsWatcher.onDidCreate(() => this.triggerPoll());
-          watchers.push(refsWatcher);
+        // vscode.Uri.file() is required here — passing a raw string path is
+        // not a valid URI and causes the watcher to silently never fire.
+        const repoUri = vscode.Uri.file(repo.repoPath);
 
-          this.repoWatchers.set(repo.repoPath, watchers);
-          watchers.forEach((w) => this.context.subscriptions.push(w));
-        } catch {
-          // Ignore errors setting up watchers for a specific repo
-        }
+        const headWatcher = vscode.workspace.createFileSystemWatcher(
+          new vscode.RelativePattern(repoUri, '.git/logs/HEAD'),
+        );
+        headWatcher.onDidChange(() => this.triggerPoll());
+        headWatcher.onDidCreate(() => this.triggerPoll());
+        watchers.push(headWatcher);
+
+        const refsWatcher = vscode.workspace.createFileSystemWatcher(
+          new vscode.RelativePattern(repoUri, '.git/refs/heads/**'),
+        );
+        refsWatcher.onDidChange(() => this.triggerPoll());
+        refsWatcher.onDidCreate(() => this.triggerPoll());
+        watchers.push(refsWatcher);
+
+        this.repoWatchers.set(repo.repoPath, watchers);
+        watchers.forEach((w) => this.context.subscriptions.push(w));
+      } catch {
+        // Ignore errors for a specific repo
       }
     }
   }
 
-  /**
-   * Trigger a debounced poll.
-   */
-  triggerPoll(): void {
+  private triggerPoll(): void {
     if (this.pollTimeout) {
       clearTimeout(this.pollTimeout);
     }
+    // Small debounce so rapid git operations don't cause multiple polls
     this.pollTimeout = setTimeout(() => {
       void this.executePoll();
     }, 2000);
@@ -111,7 +103,8 @@ export class CommitPoller {
     this.pollRequested = false;
 
     try {
-      this.setupWatchers(); // Ensure new repos are watched
+      // Pick up any newly added repos before polling
+      this.setupWatchers();
       await this.poll();
     } finally {
       this.isPolling = false;
@@ -121,17 +114,13 @@ export class CommitPoller {
     }
   }
 
-  /**
-   * Add a listener for new commit events.
-   */
   onNewCommit(listener: CommitListener): void {
     this.listeners.push(listener);
   }
 
   /**
-   * Trigger an immediate poll of all repos for new commits.
-   * Called externally (e.g. after a GitHub sync) to refresh without
-   * waiting for the next scheduled interval.
+   * Poll all repos for new commits.
+   * Also called externally after a GitHub sync.
    */
   async poll(): Promise<void> {
     const repos = this.repoManager.getAll();
@@ -162,9 +151,7 @@ export class CommitPoller {
             linesAdded: 0,
             linesRemoved: 0,
           };
-          this.listeners.forEach((l) => {
-            l(record);
-          });
+          this.listeners.forEach((l) => l(record));
         }
 
         this.lastSeenCommits.set(repo.repoPath, seen);
@@ -173,7 +160,6 @@ export class CommitPoller {
       }
     }
 
-    // Persist seen commits
     const toStore: Record<string, string[]> = {};
     this.lastSeenCommits.forEach((set, repoPath) => {
       toStore[repoPath] = Array.from(set);

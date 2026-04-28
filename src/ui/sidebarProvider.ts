@@ -107,6 +107,19 @@ export class CodeBrainProSidebarProvider implements vscode.TreeDataProvider<Tree
   ) {}
 
   /**
+   * Restore persisted state on activation.
+   * Called once during startup to hydrate the sidebar with data from disk.
+   */
+  restoreState(data: {
+    workUnits?: WorkUnit[];
+    commits?: CommitRecord[];
+  }): void {
+    if (data.workUnits) this.workUnits = data.workUnits;
+    if (data.commits) this.recentCommits = data.commits;
+    this._onDidChangeTreeData.fire();
+  }
+
+  /**
    * Refresh the tree with new data.
    */
   refresh(data?: {
