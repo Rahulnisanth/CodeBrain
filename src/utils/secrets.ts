@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-
-const KEY_GITHUB_TOKEN = 'codeBrainPro.githubToken';
-const KEY_GEMINI_API_KEY = 'codeBrainPro.geminiApiKey';
+import { KEY_GEMINI_API_KEY, KEY_GITHUB_TOKEN } from '../constants';
 
 /**
  * Abstraction over vscode.SecretStorage for CodeBrainPro secrets.

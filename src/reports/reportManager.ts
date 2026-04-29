@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { ReportData, ReportBuilder } from './reportBuilder';
-import { CommitRecord, WorkUnit } from '../types';
+import { ReportBuilder } from './reportBuilder';
+import { ReportData } from '../types';
 import { AiReporter } from '../ai/reporter';
 import { SidebarStateManager } from '../ui/sidebarState';
 import { toMarkdown } from './exporters/markdownExporter';

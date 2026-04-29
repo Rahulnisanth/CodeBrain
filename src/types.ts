@@ -81,3 +81,45 @@ export interface ClassificationResult {
   confidence: number;
   summary: string;
 }
+
+export interface PersistedActiveTime {
+  date: string;
+  activeMinutes: number;
+}
+
+export interface GroupResult {
+  name: string;
+  type: WorkType;
+  commitHashes: string[];
+}
+
+export interface CommitInfo {
+  hash: string;
+  message: string;
+  author: string;
+  authorEmail?: string;
+  timestamp: string;
+}
+
+export interface ReportData {
+  period: string;
+  startDate: Date;
+  endDate: Date;
+  totalActiveMinutes: number;
+  byDay: Record<string, number>; // date string -> minutes
+  workUnits: WorkUnit[];
+  commits: CommitRecord[];
+  topFiles: { filePath: string; editCount: number }[];
+  repos: Record<string, { minutes: number; commits: number }>;
+  linesAdded: number;
+  linesRemoved: number;
+  risks: RiskEvent[];
+  narrative?: string;
+}
+
+export interface RepoMetadata {
+  repoName: string;
+  repoPath: string;
+  remoteUrl: string | null;
+  lastSyncedAt: string | null;
+}

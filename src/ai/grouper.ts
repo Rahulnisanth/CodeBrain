@@ -1,13 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { CommitRecord, WorkType, WorkUnit } from '../types';
+import { CommitRecord, WorkType, WorkUnit, GroupResult } from '../types';
 import { generateUUID } from '../utils/uuid';
 import { buildGrouperPrompt } from './promptTemplates';
-
-interface GroupResult {
-  name: string;
-  type: WorkType;
-  commitHashes: string[];
-}
 
 /**
  * Smart Commit Grouper — clusters commits into logical WorkUnits.

@@ -1,10 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
-
-const CODE_BRAIN_PRO_DIR = path.join(os.homedir(), '.codeBrainPro');
-const LOGS_DIR = path.join(CODE_BRAIN_PRO_DIR, 'logs');
-const REPORTS_DIR = path.join(CODE_BRAIN_PRO_DIR, 'reports');
+import { CODE_BRAIN_PRO_DIR, LOGS_DIR, REPORTS_DIR } from '../constants';
 
 /**
  * Ensures the ~/.codeBrainPro directory and its subdirectories exist.

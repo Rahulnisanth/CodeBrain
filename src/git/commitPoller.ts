@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { GitClient, CommitInfo } from './gitClient';
+import { GitClient } from './gitClient';
 import { RepoManager } from '../repos/repoManager';
-import { CommitRecord } from '../types';
+import { CommitInfo, CommitRecord } from '../types';
 import { writeJson, readJson, getCodeBrainProDir } from '../utils/storage';
 import * as path from 'path';
 

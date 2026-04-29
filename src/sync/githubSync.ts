@@ -6,14 +6,11 @@ import { CredentialsManager } from '../auth/credentials';
 import { toDateString, toYearMonth } from '../utils/dateUtils';
 import { readJson, getLogsDir } from '../utils/storage';
 import { ActivityEvent } from '../types';
-
-const GLOBAL_REPO_NAME = 'code-brain-pro-logs';
-
-/** GitHub Contents API hard limit for a single file PUT (bytes). */
-const GITHUB_API_MAX_BYTES = 1_000_000; // ~1 MB
-
-/** Warn in the console when a log file exceeds this threshold before reading. */
-const LOG_FILE_WARN_BYTES = 5 * 1024 * 1024; // 5 MB
+import {
+  GITHUB_API_MAX_BYTES,
+  GLOBAL_REPO_NAME,
+  LOG_FILE_WARN_BYTES,
+} from '../constants';
 
 /**
  * GitHub Sync Engine — pushes structured activity logs and reports to a

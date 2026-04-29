@@ -1,24 +1,14 @@
-import { ActivityEvent, CommitRecord, WorkUnit, RiskEvent } from '../types';
+import {
+  ActivityEvent,
+  CommitRecord,
+  WorkUnit,
+  RiskEvent,
+  ReportData,
+} from '../types';
 import { toDateString } from '../utils/dateUtils';
 import { getLogsDir, getCodeBrainProDir, readJson } from '../utils/storage';
 import * as path from 'path';
 import * as fs from 'fs';
-
-export interface ReportData {
-  period: string;
-  startDate: Date;
-  endDate: Date;
-  totalActiveMinutes: number;
-  byDay: Record<string, number>; // date string -> minutes
-  workUnits: WorkUnit[];
-  commits: CommitRecord[];
-  topFiles: { filePath: string; editCount: number }[];
-  repos: Record<string, { minutes: number; commits: number }>;
-  linesAdded: number;
-  linesRemoved: number;
-  risks: RiskEvent[];
-  narrative?: string;
-}
 
 /**
  * Base report builder — assembles ReportData from stored logs.

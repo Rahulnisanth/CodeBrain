@@ -16,3 +16,16 @@
 ## 1.0.4 (2026-04-28)
 
 - **fix:** Bug fixes and performance improvments
+
+## 1.0.5 (2026-04-29)
+
+### Bug Fixes
+
+- **fix:** Active time no longer resets to 0 on VS Code window refresh — session minutes are now persisted to `~/.codeBrainPro/sidebar-active-time.json` and restored on activation
+
+### Refactor
+
+- **refactor:** Centralized all magic numbers, file paths, prompt strings, and icon/emoji maps into a single `src/constants.ts` module
+- **refactor:** Consolidated scattered interface definitions (`CommitInfo`, `GroupResult`, `ReportData`, `RepoMetadata`, `PersistedActiveTime`) into `src/types.ts`
+- **refactor:** Removed inline constants from `gitClient.ts`, `classifier.ts`, `grouper.ts`, `riskDetector.ts`, `githubSync.ts`, `sidebarProvider.ts`, `sidebarState.ts`, `reportBuilder.ts`, `markdownExporter.ts`, `secrets.ts`, `storage.ts`, and `promptTemplates.ts` in favour of shared imports
+- **refactor:** Removed section-divider comments from `sessionManager.ts` and `sidebarState.ts`

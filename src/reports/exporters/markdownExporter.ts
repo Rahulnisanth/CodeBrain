@@ -1,16 +1,7 @@
-import { ReportData } from '../reportBuilder';
+import { ReportData } from '../../types';
 import { formatDuration, formatDate } from '../../utils/dateUtils';
 import * as path from 'path';
-
-const TYPE_EMOJI: Record<string, string> = {
-  feature: '🟢',
-  bugfix: '🔴',
-  refactor: '🔵',
-  docs: '📄',
-  test: '🧪',
-  chore: '⚙️',
-  unknown: '⬜',
-};
+import { TYPE_EMOJI } from '../../constants';
 
 /**
  * Exports a ReportData object to a Markdown string.

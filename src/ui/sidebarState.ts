@@ -1,17 +1,12 @@
 import * as path from 'path';
 import { CommitRecord, WorkUnit, RiskEvent } from '../types';
 import { readJson, writeJson, getCodeBrainProDir } from '../utils/storage';
-
-const COMMITS_FILE = () =>
-  path.join(getCodeBrainProDir(), 'sidebar-commits.json');
-const WORK_UNITS_FILE = () =>
-  path.join(getCodeBrainProDir(), 'sidebar-work-units.json');
-
-/** Maximum number of commits persisted to disk. */
-const MAX_PERSISTED_COMMITS = 50;
-
-/** Maximum number of recent commits exposed to the sidebar tree. */
-const MAX_DISPLAY_COMMITS = 20;
+import {
+  COMMITS_FILE,
+  MAX_DISPLAY_COMMITS,
+  MAX_PERSISTED_COMMITS,
+  WORK_UNITS_FILE,
+} from '../constants';
 
 /**
  * Centralised in-memory + on-disk store for sidebar state.
@@ -23,8 +18,6 @@ export class SidebarStateManager {
   private readonly commits: CommitRecord[] = [];
   private readonly workUnits: WorkUnit[] = [];
   private readonly risks: RiskEvent[] = [];
-
-  // ── Lifecycle ──────────────────────────────────────────────
 
   /** Restore persisted state from disk (call once at activation). */
   restore(): void {
@@ -48,8 +41,6 @@ export class SidebarStateManager {
       // Non-fatal — state will be rebuilt on the next commit poll
     }
   }
-
-  // ── Queries ────────────────────────────────────────────────
 
   /** Whether there is any data worth showing in the sidebar. */
   hasData(): boolean {
@@ -80,8 +71,6 @@ export class SidebarStateManager {
   getRisks(): RiskEvent[] {
     return this.risks;
   }
-
-  // ── Mutations ──────────────────────────────────────────────
 
   /** Returns true if the commit was added, false if it was a duplicate. */
   addCommit(commit: CommitRecord): boolean {

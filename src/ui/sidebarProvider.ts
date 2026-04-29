@@ -3,16 +3,7 @@ import { WorkUnit, CommitRecord, RiskEvent } from '../types';
 import { formatDuration } from '../utils/dateUtils';
 import { SessionManager } from '../tracker/sessionManager';
 import { RepoManager } from '../repos/repoManager';
-
-const TYPE_ICON: Record<string, string> = {
-  feature: '$(add)',
-  bugfix: '$(bug)',
-  refactor: '$(tools)',
-  docs: '$(book)',
-  test: '$(beaker)',
-  chore: '$(gear)',
-  unknown: '$(circle-outline)',
-};
+import { TYPE_ICON } from '../constants';
 
 type TreeItem =
   | ActivityItem

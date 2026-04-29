@@ -4,12 +4,6 @@ import { WorkType } from '../types';
  * All Gemini prompt templates for CodeBrainPro.
  */
 
-export const CLASSIFIER_SYSTEM_PROMPT = `
-  You are a senior software engineer analyzing Git commits.
-  Given a commit message and diff summary, classify the work type.
-  Respond ONLY with valid JSON: { "type": "<type>", "confidence": <float>, "summary": "<1 sentence>" }
-  Types: feature | bugfix | refactor | docs | test | chore | unknown`;
-
 export function buildClassifierPrompt(
   message: string,
   diffStat: string,

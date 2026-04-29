@@ -1,13 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { GitClient } from '../git/gitClient';
-
-export interface RepoMetadata {
-  repoName: string;
-  repoPath: string;
-  remoteUrl: string | null;
-  lastSyncedAt: string | null;
-}
+import { RepoMetadata } from '../types';
 
 /**
  * Multi-repository manager.

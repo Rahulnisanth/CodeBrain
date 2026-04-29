@@ -1,14 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ClassificationResult, WorkType } from '../types';
-import { readJson, writeJson, getCodeBrainProDir } from '../utils/storage';
-import {
-  CLASSIFIER_SYSTEM_PROMPT,
-  buildClassifierPrompt,
-} from './promptTemplates';
-import * as path from 'path';
-
-const CACHE_FILE = () =>
-  path.join(getCodeBrainProDir(), 'classifier-cache.json');
+import { readJson, writeJson } from '../utils/storage';
+import { buildClassifierPrompt } from './promptTemplates';
+import { CLASSIFIER_SYSTEM_PROMPT, CACHE_FILE } from '../constants';
 
 /**
  * Keyword-based fallback classification rules (for offline / no-key mode).

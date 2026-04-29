@@ -5,13 +5,13 @@ import { RiskEvent } from '../types';
 import { formatFullDuration, toISO } from '../utils/dateUtils';
 import { appendToJsonArray, getCodeBrainProDir } from '../utils/storage';
 import * as path from 'path';
+import { RISK_DETECTOR_POLL_INTERVAL_MS } from '../constants';
 
 /**
  * Monitors repos for uncommitted change risk every 10 minutes.
  * Shows VS Code warning notifications when risk thresholds are exceeded.
  */
 export class RiskDetector {
-  private readonly POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
   private riskCounts = new Map<string, number>(); // repoPath -> risk count
   private onRiskUpdate: ((count: number) => void) | null = null;
 
@@ -29,7 +29,7 @@ export class RiskDetector {
 
     const handle = setInterval(() => {
       void this.checkRisks();
-    }, this.POLL_INTERVAL_MS);
+    }, RISK_DETECTOR_POLL_INTERVAL_MS);
 
     this.context.subscriptions.push({
       dispose: () => {

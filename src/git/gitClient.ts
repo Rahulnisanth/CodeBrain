@@ -1,15 +1,8 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { CommitInfo } from '../types';
 
 const execAsync = promisify(exec);
-
-export interface CommitInfo {
-  hash: string;
-  message: string;
-  author: string;
-  authorEmail?: string;
-  timestamp: string;
-}
 
 /**
  * Async Git command wrappers.
